@@ -1,0 +1,127 @@
+@import 'tailwindcss';
+@import './micromodal.css';
+
+:root {
+	--shark: #2a2b30;
+	--shark-dark: #222225;
+	--canvas: #1f1f23;
+	--white: #ffffff;
+	--silver: #cccccc;
+	--black: #000000;
+	--tuna: #3a3a3f;
+	--scarpa-flow: #5a5a60;
+	--gray: #8a8a8e;
+}
+
+@theme {
+	--color-shark: var(--shark);
+	--color-shark-dark: var(--shark-dark);
+	--color-white: var(--white);
+	--color-black: var(--black);
+	--color-canvas: var(--canvas);
+	--color-silver: var(--silver);
+	--color-tuna: var(--tuna);
+	--color-gray: var(--gray);
+	--color-scarpa-flow: var(--scarpa-flow);
+}
+
+@font-face {
+	font-family: 'Roboto';
+	src: url('../assets/fonts/Roboto-Thin.woff2') format('woff2');
+	font-weight: 100;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	src: url('../assets/fonts/Roboto-Light.woff2') format('woff2');
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	src: url('../assets/fonts/Roboto-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	src: url('../assets/fonts/Roboto-Medium.woff2') format('woff2');
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	src: url('../assets/fonts/Roboto-SemiBold.woff2') format('woff2');
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	src: url('../assets/fonts/Roboto-Bold.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	src: url('../assets/fonts/Roboto-ExtraBold.woff2') format('woff2');
+	font-weight: 800;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	src: url('../assets/fonts/Roboto-Italic.woff2') format('woff2');
+	font-weight: 400;
+	font-style: italic;
+	font-display: swap;
+}
+
+html {
+	background-color: var(--shark);
+	color: var(--silver);
+}
+
+body {
+	font-family:
+		'Roboto', 'Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif';
+}
+
+kbd {
+	--kbd-color-background: var(--silver);
+	--kbd-color-border: var(--gray);
+	--kbd-color-text: var(--black);
+
+	background-color: var(--kbd-color-background);
+	color: var(--kbd-color-text);
+	border-radius: 0.25rem;
+	border: 1px solid var(--kbd-color-border);
+	box-shadow: 0 2px 0 1px var(--kbd-color-border);
+	cursor: default;
+	font-family: var(--font-family-sans-serif);
+	font-size: 0.75em;
+	line-height: 1;
+	min-width: 0.75rem;
+	display: inline-block;
+	text-align: center;
+	padding: 2px 5px;
+	position: relative;
+	top: -1px;
+
+	&:hover {
+		box-shadow: 0 1px 0 0.5px var(--kbd-color-border);
+		top: 1px;
+	}
+}

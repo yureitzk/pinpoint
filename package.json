@@ -1,0 +1,27 @@
+{
+	"name": "pinpoint",
+	"displayName": "Pinpoint",
+	"description": "A simple game to test your spatial memory and precision by recreating point patterns on a canvas.",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"license": "AGPL-3.0-only",
+	"author": "yureitzk",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview"
+	},
+	"devDependencies": {
+		"typescript": "~5.9.3",
+		"vite": "^7.2.4"
+	},
+	"dependencies": {
+		"@types/micromodal": "^0.3.5",
+		"@tailwindcss/vite": "^4.1.18",
+		"hotkeys-js": "^4.0.0",
+		"micromodal": "^0.6.1",
+		"tailwindcss": "^4.1.18",
+		"vite-plugin-pwa": "^1.2.0"
+	}
+}
