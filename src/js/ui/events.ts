@@ -101,15 +101,13 @@ export function setupEventListeners(game: GameController): void {
 
 	window.addEventListener('keydown', (e) => {
 		if (e.key === 'Shift' && !dom.alignmentGuidesCheckbox.checked) {
-			state.areAlignmentGuidesEnabled = true;
-			if (state.isGameActive) game.draw();
+			game.toggleAlignmentGuides(true);
 		}
 	});
 
 	window.addEventListener('keyup', (e) => {
 		if (e.key === 'Shift' && !dom.alignmentGuidesCheckbox.checked) {
-			state.areAlignmentGuidesEnabled = false;
-			if (state.isGameActive) game.draw();
+			game.toggleAlignmentGuides(false);
 		}
 	});
 
@@ -134,12 +132,11 @@ export function setupEventListeners(game: GameController): void {
 	});
 
 	dom.ghostLineCheckbox.addEventListener('change', () => {
-		state.isGhostLineEnabled = dom.ghostLineCheckbox.checked;
+		game.toggleGhostLine(dom.ghostLineCheckbox.checked);
 	});
 
 	dom.alignmentGuidesCheckbox.addEventListener('change', () => {
-		state.areAlignmentGuidesEnabled = dom.alignmentGuidesCheckbox.checked;
-		if (state.isGameActive) game.draw();
+		game.toggleAlignmentGuides(dom.alignmentGuidesCheckbox.checked);
 	});
 
 	let resizeTimeout: number;

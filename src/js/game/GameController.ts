@@ -24,7 +24,7 @@ class GameController {
 	startRound(): void {
 		this.updateStateFromUI();
 		this.resetRoundState();
-		this.updateStartScreen();
+		this.updateUiFromState();
 		this.generateNewPattern();
 		this.setupMemoryMode();
 		this.draw();
@@ -41,7 +41,7 @@ class GameController {
 
 		this.resetUIState();
 		this.updateStats();
-		this.updateStartScreen();
+		this.updateUiFromState();
 		this.renderer.clear();
 	}
 
@@ -81,9 +81,39 @@ class GameController {
 			state.userClicks.length === 0 || !state.isGameActive;
 	}
 
+	public toggleAlignmentGuides(isEnabled: boolean): void {
+		state.areAlignmentGuidesEnabled = isEnabled;
+		this.handleUIFeatureToggle();
+	}
+
+	public toggleGhostLine(isEnabled: boolean): void {
+		state.isGhostLineEnabled = isEnabled;
+		this.handleUIFeatureToggle();
+	}
+
+	private updateCanvasTouchMode(): void {
+		const needsPointerTracking =
+			state.areAlignmentGuidesEnabled || state.isGhostLineEnabled;
+		const shouldLock = state.isGameActive && needsPointerTracking;
+
+		dom.canvas.style.touchAction = shouldLock ? 'none' : 'auto';
+	}
+
 	private updateStartScreen(): void {
 		dom.startScreen.classList.toggle('hidden', state.isGameActive);
 		state.isMenuOpened = !state.isGameActive;
+	}
+
+	private updateUiFromState(): void {
+		this.updateStartScreen();
+		this.updateCanvasTouchMode();
+	}
+
+	private handleUIFeatureToggle(): void {
+		this.updateCanvasTouchMode();
+		if (state.isGameActive) {
+			this.draw();
+		}
 	}
 
 	private drawIdealPlacement(): void {
