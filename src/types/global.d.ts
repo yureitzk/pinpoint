@@ -13,10 +13,10 @@ interface GameState {
 	pointsType: number;
 	targetPoints: Point[];
 	userClicks: Point[];
-    comparisonShape: Point[];
+	comparisonShape: Point[];
 	normalizedComparisonShape: Point[];
-	normalizedTargetPoints: Point[]; 
-    normalizedUserClicks: Point[];
+	normalizedTargetPoints: Point[];
+	normalizedUserClicks: Point[];
 	isGameActive: boolean;
 	isMirrorMode: boolean;
 	isAbsoluteMode: boolean;
@@ -24,6 +24,9 @@ interface GameState {
 	isGhostLineEnabled: boolean;
 	isTargetVisible: boolean;
 	isCopyAreaHidden: boolean;
+	targetVisibilityMs: number;
+	copyAreaMaskMs: number;
+	passThreshold: number;
 	isMenuOpened: boolean;
 	results: GameResult[];
 	currentStreak: number;
@@ -35,4 +38,11 @@ interface GameState {
 interface ColorObject {
 	color: string;
 	value: number;
+}
+
+interface PointerState {
+	lastPointerDownPosition: { x: number; y: number };
+	isDragging: boolean;
+	hasMovedWhileDragging: boolean;
+	lastClickTime: number;
 }

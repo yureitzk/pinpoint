@@ -50,3 +50,6 @@ export const SCORING = {
 	MAX_ERROR_TO_DISPLAY: 100,
 	ERROR_FOR_FAILED_ATTEMPT: 200,
 } as const;
+
+export const CLICK_COOLDOWN_MS = 150;
+export const DRAG_THRESHOLD = 15; // pixels

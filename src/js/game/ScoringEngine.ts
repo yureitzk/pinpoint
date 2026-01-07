@@ -7,7 +7,7 @@ import {
 	distanceSquared,
 	normalizeAngleDifference,
 	sortByAngle,
-} from '../lib/utils';
+} from '../lib/mathUtils';
 
 class ScoringEngine {
 	static calculateScore(

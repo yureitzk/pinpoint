@@ -28,23 +28,6 @@ export function sortByAngle(points: Point[], center: Point): Point[] {
 	});
 }
 
-export function getLayoutMode(): LayoutMode {
-	return window.innerWidth < 768 ? 'vertical' : 'horizontal';
-}
-
-export function getColors(
-	colorObjects: ColorObject[],
-	currentValue: number,
-): string | undefined {
-	const sortedArray = [...colorObjects.sort((a, b) => b.value - a.value)];
-
-	for (let i = 0; i < sortedArray.length; i++) {
-		const currentColorObject = colorObjects[i];
-
-		if (currentValue >= currentColorObject.value) {
-			return currentColorObject.color;
-		}
-	}
-
-	return undefined;
+export function clamp(value: number, min: number, max: number): number {
+	return Math.min(Math.max(value, min), max);
 }

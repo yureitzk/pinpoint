@@ -1,8 +1,8 @@
 import { GEOMETRY } from '../lib/constants';
 import { CANVAS } from '../core/canvas';
-import CoordinateSystem from '../core/CoordinateSystem';
 import { state } from '../core/state';
-import { distanceSquared } from '../lib/utils';
+import { distanceSquared } from '../lib/mathUtils';
+import { CoordinateConverter } from '../lib/cordinateUtils';
 
 class PatternGenerator {
 	static generate(numPoints: number): Point[] {
@@ -37,16 +37,15 @@ class PatternGenerator {
 
 		const sortedPoints = this.reorderByClosestToOrigin(points);
 
-		state.normalizedTargetPoints = sortedPoints.map((p) =>
-			CoordinateSystem.toNormalized(
-				p,
-				state.layoutMode,
-				CANVAS.WIDTH,
-				CANVAS.HEIGHT,
-				true,
-			),
+		const converter = new CoordinateConverter(
+			state.layoutMode,
+			CANVAS.WIDTH,
+			CANVAS.HEIGHT,
 		);
-
+		state.normalizedTargetPoints = converter.toNormalizedArray(
+			sortedPoints,
+			true,
+		);
 		return sortedPoints;
 	}
 
