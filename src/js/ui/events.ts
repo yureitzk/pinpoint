@@ -57,8 +57,6 @@ export function setupEventListeners(game: GameController): void {
 
 	setupPointerEvents(game, pointerState);
 	setupControlEvents(game);
-
-	setupControlEvents(game);
 	setupKeyboardEvents(game);
 	setupWindowEvents(game);
 }
