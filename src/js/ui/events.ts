@@ -142,14 +142,6 @@ export function setupEventListeners(game: GameController): void {
 		if (state.isGameActive) game.draw();
 	});
 
-	dom.canvas.addEventListener('pointerdown', (e) => {
-		dom.canvas.setPointerCapture(e.pointerId);
-	});
-
-	dom.canvas.addEventListener('pointerup', (e) => {
-		dom.canvas.releasePointerCapture(e.pointerId);
-	});
-
 	let resizeTimeout: number;
 	window.addEventListener('resize', () => {
 		cancelAnimationFrame(resizeTimeout);
