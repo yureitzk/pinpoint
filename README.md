@@ -2,7 +2,7 @@
 
 A simple game to test your spatial memory and precision by recreating point patterns on a canvas.
 
-[Live website](https://yureitzk.github.io/Pinpoint)
+[Live website](https://yureitzk.github.io/pinpoint)
 
 ## Features
 
