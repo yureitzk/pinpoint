@@ -12,8 +12,7 @@ export const TIMING = {
 
 export const THRESHOLD_FALLBACK = 90;
 
-export const MASK_FONT =
-	'bold 2.4rem Roboto, Inter, system-ui, -apple-system, Segoe UI, sans-serif';
+export const MASK_FONT = 'bold 2.4rem Roboto, Inter, system-ui, -apple-system, Segoe UI, sans-serif';
 
 export const PLACEHOLDER_TEXT = {
 	SCORE_SPAN: '--',

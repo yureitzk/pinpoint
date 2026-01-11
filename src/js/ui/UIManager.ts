@@ -1,22 +1,13 @@
 import { dom } from './dom';
-import {
-	PLACEHOLDER_TEXT,
-	COLORS,
-	TIMING,
-	THRESHOLD_FALLBACK,
-} from '../lib/constants';
+import { PLACEHOLDER_TEXT, COLORS, TIMING, THRESHOLD_FALLBACK } from '../lib/constants';
 import { clamp } from '../lib/mathUtils';
 import { getScoreColor, getAngleErrorColor } from '../lib/colorUtils';
 
 class UIManager {
 	public updateStats(streak: number, average: number, attempts: number): void {
-		dom.streakSpan.textContent =
-			streak > 0 ? streak.toString() : PLACEHOLDER_TEXT.STREAK_SPAN;
+		dom.streakSpan.textContent = streak > 0 ? streak.toString() : PLACEHOLDER_TEXT.STREAK_SPAN;
 
-		const attemptsLabel =
-			attempts === 1
-				? PLACEHOLDER_TEXT.ATTEMPTS_DISPLAY_ONE
-				: PLACEHOLDER_TEXT.ATTEMPTS_DISPLAY_MANY;
+		const attemptsLabel = attempts === 1 ? PLACEHOLDER_TEXT.ATTEMPTS_DISPLAY_ONE : PLACEHOLDER_TEXT.ATTEMPTS_DISPLAY_MANY;
 		dom.attemptsDisplay.textContent = `${attempts} ${attemptsLabel}`;
 
 		if (attempts === 0) {
@@ -68,28 +59,16 @@ class UIManager {
 
 			pointsType: parseInt(dom.pointsSelect.value) || 2,
 
-			targetVisibilityMs:
-				Math.max(0, parseInt(dom.targetVisibilityDuration.value)) ||
-				TIMING.TARGET_VISIBILITY_MS,
+			targetVisibilityMs: Math.max(0, parseInt(dom.targetVisibilityDuration.value)) || TIMING.TARGET_VISIBILITY_MS,
 
-			copyAreaMaskMs:
-				Math.max(0, parseInt(dom.copyAreaHiddenDuration.value)) ||
-				TIMING.COPY_AREA_MASK_MS,
+			copyAreaMaskMs: Math.max(0, parseInt(dom.copyAreaHiddenDuration.value)) || TIMING.COPY_AREA_MASK_MS,
 
-			passThreshold: clamp(
-				parseInt(dom.passThresholdInput.value) || THRESHOLD_FALLBACK,
-				0,
-				100,
-			),
+			passThreshold: clamp(parseInt(dom.passThresholdInput.value) || THRESHOLD_FALLBACK, 0, 100),
 		};
 	}
 
-	public updateToggleFeedback(
-		isGameActive: boolean,
-		needsPointerLock: boolean,
-	): void {
-		dom.canvas.style.touchAction =
-			isGameActive && needsPointerLock ? 'none' : 'auto';
+	public updateToggleFeedback(isGameActive: boolean, needsPointerLock: boolean): void {
+		dom.canvas.style.touchAction = isGameActive && needsPointerLock ? 'none' : 'auto';
 	}
 }
 

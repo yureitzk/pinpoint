@@ -6,9 +6,7 @@ import { CoordinateConverter } from '../lib/cordinateUtils';
 
 class PatternGenerator {
 	static generate(numPoints: number): Point[] {
-		const radius =
-			Math.random() * (GEOMETRY.MAX_RADIUS - GEOMETRY.MIN_RADIUS) +
-			GEOMETRY.MIN_RADIUS;
+		const radius = Math.random() * (GEOMETRY.MAX_RADIUS - GEOMETRY.MIN_RADIUS) + GEOMETRY.MIN_RADIUS;
 		let centerX, centerY;
 
 		if (state.layoutMode === 'horizontal') {
@@ -37,15 +35,8 @@ class PatternGenerator {
 
 		const sortedPoints = this.reorderByClosestToOrigin(points);
 
-		const converter = new CoordinateConverter(
-			state.layoutMode,
-			CANVAS.WIDTH,
-			CANVAS.HEIGHT,
-		);
-		state.normalizedTargetPoints = converter.toNormalizedArray(
-			sortedPoints,
-			true,
-		);
+		const converter = new CoordinateConverter(state.layoutMode, CANVAS.WIDTH, CANVAS.HEIGHT);
+		state.normalizedTargetPoints = converter.toNormalizedArray(sortedPoints, true);
 		return sortedPoints;
 	}
 

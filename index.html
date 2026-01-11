@@ -1,198 +1,251 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="author" content="yureitzk" />
+		<title>Pinpoint</title>
+		<link rel="canonical" href="https://yureitzk.github.io/pinpoint/" />
+		<meta name="description" content="A simple game to test your spatial memory and precision by recreating point patterns on a canvas." />
+		<meta
+			name="keywords"
+			content="precision drawing game, point pattern challenge, drawing warm up exercies, drawing accuracy trainer, spatial memory exercise"
+		/>
+		<meta property="og:title" content="Pinpoint" />
+		<meta
+			property="og:description"
+			content="A simple game to test your spatial memory and precision by recreating point patterns on a canvas."
+		/>
+		<meta property="og:url" content="https://yureitzk.github.io/pinpoint" />
+		<link rel="preload" href="./src/assets/fonts/Roboto-Bold.woff2" as="font" type="font/woff2" crossorigin />
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name='author' content="yureitzk" />
-    <title>Pinpoint</title>
-    <link rel="canonical" href="https://yureitzk.github.io/pinpoint/">
-    <meta name="description" content="A simple game to test your spatial memory and precision by recreating point patterns on a canvas." />
-    <meta name="keywords" content="precision drawing game, point pattern challenge, drawing warm up exercies, drawing accuracy trainer, spatial memory exercise" />
-    <meta property="og:title" content="Pinpoint" />
-    <meta property="og:description" content="A simple game to test your spatial memory and precision by recreating point patterns on a canvas." />
-    <meta property="og:url" content="https://yureitzk.github.io/pinpoint" />
-    <link rel="preload" href="./src/assets/fonts/Roboto-Bold.woff2" as="font" type="font/woff2" crossorigin>
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
 
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+		<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
 
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+		<link rel="apple-touch-icon" type="image/png" sizes="167x167" href="/favicon-167x167.png" />
+		<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/favicon-180x180.png" />
 
-    <link rel="apple-touch-icon" type="image/png" sizes="167x167" href="/favicon-167x167.png" />
-    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/favicon-180x180.png" />
+		<meta name="theme-color" content="#676975" />
+	</head>
 
-    <meta name="theme-color" content="#676975" />
-</head>
+	<body class="p-2">
+		<div class="p-4">
+			<main class="container border-2 border-tuna grid md:grid-cols-[2fr_6fr] xl:grid-cols-[1fr_5fr] mx-auto mb-4 overflow-hidden rounded-md">
+				<aside class="border-tuna bg-shark-dark border-t-2 md:border-t-0 md:border-r-2 px-3 py-4 flex flex-col order-2 md:order-0">
+					<div class="mb-2">
+						<button
+							aria-label="Undo the last point"
+							class="w-8.5 h-8.5 md:w-6.5 md:h-6.5 border-2 border-tuna rounded-md p-0.5 bg-shark transition-colors cursor-pointer hover:bg-shark/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-shark"
+							id="undoButton"
+							title="Undo the last point"
+							disabled
+						>
+							<img src="/img/undo.svg" alt="An arrow icon" />
+						</button>
+					</div>
 
-<body class="p-2">
-    <div class="p-4">
-        <main class="container border-2 border-tuna grid md:grid-cols-[2fr_6fr] xl:grid-cols-[1fr_5fr] mx-auto mb-4 overflow-hidden rounded-md">
-            <aside class="border-tuna bg-shark-dark border-t-2 md:border-t-0 md:border-r-2 px-3 py-4 flex flex-col order-2 md:order-0">
+					<div class="grid grid-cols-2 mb-3">
+						<div>
+							<h2 class="font-medium text-gray-300/75">Score</h2>
+							<span id="scoreValue" class="after:content-['%']">--</span>
+						</div>
+						<div>
+							<h2 class="font-medium text-gray-300/75">Angle Error</h2>
+							<span id="angleErrorValue" class="after:content-['\00B0']">--</span>
+						</div>
+						<div>
+							<h2 class="font-medium text-gray-300/75">Streak</h2>
+							<span id="streakValue">--</span>
+						</div>
+					</div>
 
-                <div class="mb-2">
-                    <button aria-label="Undo the last point" class="w-8.5 h-8.5 md:w-6.5 md:h-6.5 border-2 border-tuna rounded-md p-0.5 bg-shark transition-colors cursor-pointer hover:bg-shark/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-shark" id="undoButton" title="Undo the last point" disabled>
-                        <img src="/img/undo.svg" alt="An arrow icon" />
-                    </button>
-                </div>
+					<div class="mb-3">
+						<div class="flex justify-between">
+							<h2 id="attemptsDisplay">0 Rounds</h2>
+							<h2 id="averagePercentage">n/a</h2>
+						</div>
+						<div class="w-full bg-gray-600 rounded-full h-1.5 mb-1 mt-1">
+							<div class="h-full rounded-full" id="progressBar"></div>
+						</div>
+					</div>
 
-                <div class="grid grid-cols-2 mb-3">
-                    <div>
-                        <h2 class="font-medium text-gray-300/75">Score</h2>
-                        <span id="scoreValue" class="after:content-['%']">--</span>
-                    </div>
-                    <div>
-                        <h2 class="font-medium text-gray-300/75">Angle Error</h2>
-                        <span id="angleErrorValue" class="after:content-['\00B0']">--</span>
-                    </div>
-                    <div>
-                        <h2 class="font-medium text-gray-300/75">Streak</h2>
-                        <span id="streakValue">--</span>
-                    </div>
-                </div>
+					<div class="mb-3 flex gap-x-2">
+						<button
+							class="cursor-pointer rounded-md py-0.5 px-3 flex items-center justify-center gap-x-2 flex-1 transition-colors hover:bg-scarpa-flow/80 bg-scarpa-flow/60"
+							id="startButton"
+						>
+							<img class="w-4 h-4" src="/img/start.svg" alt="Triangle icon" />Start
+						</button>
+						<button
+							aria-label="Reset"
+							title="Reset"
+							class="cursor-pointer w-10 h-10 border-2 rounded-md border-tuna transition-colors hover:bg-shark/30 p-1.5 bg-shark"
+							id="resetButton"
+						>
+							<img src="/img/restart.svg" alt="Arrow icon" />
+						</button>
+					</div>
 
-                <div class="mb-3">
-                    <div class="flex justify-between">
-                        <h2 id="attemptsDisplay">0 Rounds</h2>
-                        <h2 id="averagePercentage">n/a</h2>
-                    </div>
-                    <div class="w-full bg-gray-600 rounded-full h-1.5 mb-1 mt-1">
-                        <div class="h-full rounded-full" id="progressBar"></div>
-                    </div>
-                </div>
+					<div class="mt-auto">
+						<div class="mb-3">
+							<label class="font-medium text-gray-300/75 block" for="points">Points</label>
+							<select
+								name="points"
+								id="points"
+								class="w-full bg-shark border border-tuna rounded-lg px-2 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
+							>
+								<option value="2">2 (Line)</option>
+								<option value="3">3 (Triangle)</option>
+								<option value="4">4 (Quad)</option>
+								<option value="5">5 (Pentagon)</option>
+								<option value="6">6 (Hexagon)</option>
+								<option value="7">7 (Heptagon)</option>
+							</select>
+						</div>
 
-                <div class="mb-3 flex gap-x-2">
-                    <button class="cursor-pointer rounded-md py-0.5 px-3 flex items-center justify-center gap-x-2 flex-1 transition-colors hover:bg-scarpa-flow/80 bg-scarpa-flow/60" id="startButton"><img class="w-4 h-4" src="/img/start.svg" alt="Triangle icon" />Start
-                    </button>
-                    <button aria-label="Reset" title="Reset" class="cursor-pointer w-10 h-10 border-2 rounded-md border-tuna transition-colors hover:bg-shark/30 p-1.5 bg-shark" id="resetButton">
-                        <img src="/img/restart.svg" alt="Arrow icon" />
-                    </button>
-                </div>
+						<div class="mb-3">
+							<div class="mb-2">
+								<label class="font-medium text-gray-300/75 block mb-1" for="passThreshold">Streak Threshold (%)</label>
+								<input
+									class="w-full bg-shark px-2 py-0.5 border border-tuna rounded-lg"
+									type="number"
+									value="90"
+									min="1"
+									max="100"
+									id="passThreshold"
+								/>
+							</div>
+							<div class="mb-2">
+								<label class="font-medium text-gray-300/75 block mb-1" for="targetVisibilityDuration">Target Visibility Duration (ms)</label>
+								<input
+									class="w-full bg-shark px-2 py-0.5 border border-tuna rounded-lg"
+									type="number"
+									value="2000"
+									min="1"
+									id="targetVisibilityDuration"
+								/>
+							</div>
+							<div>
+								<label class="font-medium text-gray-300/75 block mb-1" for="copyAreaHiddenDuration">Draw Area Hide Duration (ms)</label>
+								<input
+									class="w-full bg-shark px-2 py-0.5 border border-tuna rounded-lg"
+									type="number"
+									value="3000"
+									min="1"
+									id="copyAreaHiddenDuration"
+								/>
+							</div>
+						</div>
 
-                <div class="mt-auto">
-                    <div class="mb-3">
-                        <label class="font-medium text-gray-300/75 block" for="points">Points</label>
-                        <select name="points" id="points" class="w-full bg-shark border border-tuna rounded-lg px-2 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50">
-                            <option value="2">2 (Line)</option>
-                            <option value="3">3 (Triangle)</option>
-                            <option value="4">4 (Quad)</option>
-                            <option value="5">5 (Pentagon)</option>
-                            <option value="6">6 (Hexagon)</option>
-                            <option value="7">7 (Heptagon)</option>
-                        </select>
-                    </div>
+						<div>
+							<div class="flex justify-between">
+								<h2 class="font-medium text-gray-300/75 mb-2">Options</h2>
+								<button
+									aria-label="Open FAQ"
+									class="cursor-pointer w-6.5 h-6.5 border-2 rounded-md border-tuna transition-colors hover:bg-shark/30 p-0.5 bg-shark"
+									id="helpButton"
+									data-micromodal-trigger="modal"
+									title="Open FAQ"
+								>
+									<img src="/img/help.svg" alt="Question Mark Icon" />
+								</button>
+							</div>
+							<div>
+								<div>
+									<input type="checkbox" id="ghostLineOption" />
+									<label for="ghostLineOption">Ghost Line</label>
+								</div>
+								<div>
+									<input type="checkbox" id="alignmentGuidesOption" />
+									<label for="alignmentGuidesOption">Alignment Guides</label>
+								</div>
+								<div>
+									<input type="checkbox" id="mirrorOption" />
+									<label for="mirrorOption">Mirror</label>
+								</div>
+								<div>
+									<input type="checkbox" id="absoluteOption" />
+									<label for="absoluteOption">Absolute</label>
+								</div>
+								<div>
+									<input type="checkbox" id="memoryOption" />
+									<label for="memoryOption">Memory</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</aside>
 
-                    <div class="mb-3">
-                        <div class="mb-2">
-                            <label class="font-medium text-gray-300/75 block mb-1" for="passThreshold">Streak Threshold (%)</label>
-                            <input class="w-full bg-shark px-2 py-0.5 border border-tuna rounded-lg" type="number" value="90" min="1" max="100" id="passThreshold" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="font-medium text-gray-300/75 block mb-1" for="targetVisibilityDuration">Target Visibility Duration (ms)</label>
-                            <input class="w-full bg-shark px-2 py-0.5 border border-tuna rounded-lg" type="number" value="2000" min="1" id="targetVisibilityDuration" />
-                        </div>
-                        <div>
-                            <label class="font-medium text-gray-300/75 block mb-1" for="copyAreaHiddenDuration">Draw Area Hide Duration (ms)</label>
-                            <input class="w-full bg-shark px-2 py-0.5 border border-tuna rounded-lg" type="number" value="3000" min="1" id="copyAreaHiddenDuration" />
-                        </div>
-                    </div>
+				<div class="relative">
+					<canvas class="bg-canvas w-full h-full min-h-[min(65vh,550px)]"></canvas>
+					<div class="absolute inset-0 flex items-center justify-center pointer-events-none" id="startScreen">
+						<div class="text-center">
+							<div class="w-13 h-13 mx-auto mb-4 rounded-full p-2.5 bg-scarpa-flow/10 flex items-center justify-center">
+								<img src="/img/pen.svg" alt="Pen icon" />
+							</div>
+							<p class="text-gray-300/70 text-sm flex items-baseline">
+								Press <code class="mx-1.5">Start</code> or <kbd class="mx-1.5 self-center">Space</kbd> to begin drawing
+							</p>
+						</div>
+					</div>
+				</div>
+			</main>
 
-                    <div>
-                        <div class="flex justify-between">
-                            <h2 class="font-medium text-gray-300/75 mb-2">Options</h2>
-                            <button aria-label="Open FAQ" class="cursor-pointer w-6.5 h-6.5 border-2 rounded-md border-tuna transition-colors hover:bg-shark/30 p-0.5 bg-shark" id="helpButton" data-micromodal-trigger="modal" title="Open FAQ">
-                                <img src="/img/help.svg" alt="Question Mark Icon" />
-                            </button>
-                        </div>
-                        <div>
-                            <div>
-                                <input type="checkbox" id="ghostLineOption" />
-                                <label for="ghostLineOption">Ghost Line</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="alignmentGuidesOption" />
-                                <label for="alignmentGuidesOption">Alignment Guides</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="mirrorOption" />
-                                <label for="mirrorOption">Mirror</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="absoluteOption" />
-                                <label for="absoluteOption">Absolute</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="memoryOption" />
-                                <label for="memoryOption">Memory</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </aside>
+			<footer class="flex">
+				<a href="https://github.com/yureitzk/pinpoint" rel="noreferrer noopener" class="inline-block mx-auto hover:underline">Source Code</a>
+			</footer>
+		</div>
 
-            <div class="relative">
-                <canvas class="bg-canvas w-full h-full min-h-[min(65vh,550px)]"></canvas>
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none" id="startScreen">
-                    <div class="text-center">
-                        <div class="w-13 h-13 mx-auto mb-4 rounded-full p-2.5 bg-scarpa-flow/10 flex items-center justify-center">
-                            <img src="/img/pen.svg" alt="Pen icon" />
-                        </div>
-                        <p class="text-gray-300/70 text-sm flex items-baseline">Press <code class="mx-1.5">Start</code> or <kbd class="mx-1.5 self-center">Space</kbd> to begin drawing</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <footer class="flex">
-            <a href="https://github.com/yureitzk/pinpoint" rel="noreferrer noopener" class="inline-block mx-auto hover:underline">Source Code</a>
-        </footer>
-    </div>
-
-    <div class="modal micromodal-slide" id="modal" aria-hidden="true">
-        <div class="modal__overlay px-4 md:px-[auto]" tabindex="-1" data-micromodal-close>
-            <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-                <header class="modal__header">
-                    <h2 class="modal__title" id="modal-title">Help &amp; FAQ</h2>
-                    <button class="modal__close" aria-label="Close modal" data-micromodal-close title="Close modal"></button>
-                </header>
-                <main class="modal__content" id="modal-content">
-                    <div class="mb-3.5">
-                        <h3 class="modal__subtitle">How do I start practicing?</h3>
-                        <p class="my-2">
-                            Click the <code>Start</code> button in the sidebar. Points will appear on the canvas that you need to recreate by clicking in the correct positions.
-                        </p>
-                    </div>
-                    <div class="mb-3.5">
-                        <h3 class="modal__subtitle">What is the Threshold setting?</h3>
-                        <p class="my-2">The threshold (1–100) determines how precise your clicks need to be. A higher number means clicks must be more precise to count as correct.</p>
-                    </div>
-                    <div class="mb-3.5">
-                        <h3 class="modal__subtitle">What do the Options do?</h3>
-                        <ul class="my-2">
-                            <li><b>Ghost Line</b> - Shows a temporary guide line to your next point.</li>
-                            <li><b>Alignment Guides</b> - Displays crosshair guides for precise placement.</li>
-                            <li><b>Mirror</b> - Reflects the target pattern across the divider.</li>
-                            <li><b>Absolute</b> - Matches exact positions instead of relative shape.</li>
-                            <li><b>Memory</b> - Hides the target after a short time to test recall.</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="modal__subtitle">Are there any keyboard shortcuts?</h3>
-                        <ul class="my-2">
-                            <li><kbd>Shift</kbd> - Hold to show alignment guides.</li>
-                            <li><kbd>Ctrl</kbd> + <kbd>Z</kbd> / <kbd>⌘</kbd> + <kbd>Z</kbd> - Undo the last point.</li>
-                            <li><kbd>R</kbd> - Reset the game.</li>
-                            <li><kbd>Space</kbd> - Start a round.</li>
-                        </ul>
-                    </div>
-                </main>
-                <footer class="modal__footer">
-                    <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
-                </footer>
-            </div>
-        </div>
-    </div>
-    <script type="module" src="/src/js/main.ts"></script>
-</body>
-
+		<div class="modal micromodal-slide" id="modal" aria-hidden="true">
+			<div class="modal__overlay px-4 md:px-[auto]" tabindex="-1" data-micromodal-close>
+				<div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+					<header class="modal__header">
+						<h2 class="modal__title" id="modal-title">Help &amp; FAQ</h2>
+						<button class="modal__close" aria-label="Close modal" data-micromodal-close title="Close modal"></button>
+					</header>
+					<main class="modal__content" id="modal-content">
+						<div class="mb-3.5">
+							<h3 class="modal__subtitle">How do I start practicing?</h3>
+							<p class="my-2">
+								Click the <code>Start</code> button in the sidebar. Points will appear on the canvas that you need to recreate by clicking in the
+								correct positions.
+							</p>
+						</div>
+						<div class="mb-3.5">
+							<h3 class="modal__subtitle">What is the Threshold setting?</h3>
+							<p class="my-2">
+								The threshold (1–100) determines how precise your clicks need to be. A higher number means clicks must be more precise to count as
+								correct.
+							</p>
+						</div>
+						<div class="mb-3.5">
+							<h3 class="modal__subtitle">What do the Options do?</h3>
+							<ul class="my-2">
+								<li><b>Ghost Line</b> - Shows a temporary guide line to your next point.</li>
+								<li><b>Alignment Guides</b> - Displays crosshair guides for precise placement.</li>
+								<li><b>Mirror</b> - Reflects the target pattern across the divider.</li>
+								<li><b>Absolute</b> - Matches exact positions instead of relative shape.</li>
+								<li><b>Memory</b> - Hides the target after a short time to test recall.</li>
+							</ul>
+						</div>
+						<div>
+							<h3 class="modal__subtitle">Are there any keyboard shortcuts?</h3>
+							<ul class="my-2">
+								<li><kbd>Shift</kbd> - Hold to show alignment guides.</li>
+								<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> / <kbd>⌘</kbd> + <kbd>Z</kbd> - Undo the last point.</li>
+								<li><kbd>R</kbd> - Reset the game.</li>
+								<li><kbd>Space</kbd> - Start a round.</li>
+							</ul>
+						</div>
+					</main>
+					<footer class="modal__footer">
+						<button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
+					</footer>
+				</div>
+			</div>
+		</div>
+		<script type="module" src="/src/js/main.ts"></script>
+	</body>
 </html>

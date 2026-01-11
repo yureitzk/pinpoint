@@ -113,15 +113,12 @@ class GameController {
 	}
 
 	private updateUndoButton(): void {
-		this.uiManager.setUndoDisabled(
-			state.userClicks.length === 0 || !state.isGameActive,
-		);
+		this.uiManager.setUndoDisabled(state.userClicks.length === 0 || !state.isGameActive);
 	}
 
 	private updateUiFromState(): void {
 		state.isMenuOpened = !state.isGameActive;
-		const needsPointerTracking =
-			state.areAlignmentGuidesEnabled || state.isGhostLineEnabled;
+		const needsPointerTracking = state.areAlignmentGuidesEnabled || state.isGhostLineEnabled;
 		const shouldLockTouch = state.isGameActive && needsPointerTracking;
 
 		this.uiManager.setStartScreenVisible(!state.isGameActive);
@@ -132,23 +129,16 @@ class GameController {
 		const attempts = state.results.length;
 		const streak = state.currentStreak;
 
-		const totalError = state.results.reduce(
-			(sum, result) => sum + result.accuracy,
-			0,
-		);
+		const totalError = state.results.reduce((sum, result) => sum + result.accuracy, 0);
 		const overallAverageError = totalError / attempts;
-		const overallPrecisionFraction =
-			1 -
-			Math.min(overallAverageError, SCORING.MAX_ERROR_TO_DISPLAY) /
-				SCORING.MAX_ERROR_TO_DISPLAY;
+		const overallPrecisionFraction = 1 - Math.min(overallAverageError, SCORING.MAX_ERROR_TO_DISPLAY) / SCORING.MAX_ERROR_TO_DISPLAY;
 		const average = Math.round(overallPrecisionFraction * 100);
 
 		this.uiManager.updateStats(streak, average, attempts);
 	}
 
 	private handleUIFeatureToggle(): void {
-		const needsPointerTracking =
-			state.areAlignmentGuidesEnabled || state.isGhostLineEnabled;
+		const needsPointerTracking = state.areAlignmentGuidesEnabled || state.isGhostLineEnabled;
 
 		this.uiManager.updateToggleFeedback(state.isGameActive, needsPointerTracking);
 
@@ -163,8 +153,7 @@ class GameController {
 	}
 
 	private drawTargetPattern(): void {
-		const shouldShow =
-			!state.isGameActive || !state.isMemoryMode || state.isTargetVisible;
+		const shouldShow = !state.isGameActive || !state.isMemoryMode || state.isTargetVisible;
 		if (!shouldShow || state.targetPoints.length === 0) return;
 
 		this.renderer.drawLines(state.targetPoints, COLORS.TARGET_DEFAULT, {
@@ -203,8 +192,7 @@ class GameController {
 	}
 
 	private drawUserInteraction(): void {
-		if (state.isGameActive && state.isMemoryMode && state.isCopyAreaHidden)
-			return;
+		if (state.isGameActive && state.isMemoryMode && state.isCopyAreaHidden) return;
 
 		this.drawCrosshairIfNeeded();
 		this.drawUserLines();
@@ -221,10 +209,7 @@ class GameController {
 	private drawUserLines(): void {
 		if (state.userClicks.length < 2) return;
 
-		const color =
-			state.isGameActive && state.userClicks.length < state.pointsType
-				? COLORS.USER_LINES_PROGRESS
-				: COLORS.USER_LINES_FINAL;
+		const color = state.isGameActive && state.userClicks.length < state.pointsType ? COLORS.USER_LINES_PROGRESS : COLORS.USER_LINES_FINAL;
 
 		this.renderer.drawLines(state.userClicks, color, {
 			closed: !state.isGameActive,
@@ -233,10 +218,7 @@ class GameController {
 
 	private drawGhostLineIfNeeded(): void {
 		const shouldShow =
-			state.isGameActive &&
-			state.isGhostLineEnabled &&
-			state.userClicks.length > 0 &&
-			state.userClicks.length < state.pointsType;
+			state.isGameActive && state.isGhostLineEnabled && state.userClicks.length > 0 && state.userClicks.length < state.pointsType;
 
 		if (shouldShow) {
 			const lastPoint = state.userClicks[state.userClicks.length - 1];
@@ -245,10 +227,7 @@ class GameController {
 	}
 
 	private drawUserPoints(): void {
-		const color =
-			state.isGameActive && state.userClicks.length < state.pointsType
-				? COLORS.USER_POINTS_PROGRESS
-				: COLORS.USER_POINTS_FINAL;
+		const color = state.isGameActive && state.userClicks.length < state.pointsType ? COLORS.USER_POINTS_PROGRESS : COLORS.USER_POINTS_FINAL;
 
 		state.userClicks.forEach((p) => this.renderer.drawPoint(p.x, p.y, color));
 	}
@@ -301,8 +280,7 @@ class GameController {
 	}
 
 	private canAcceptClick(x: number, y: number): boolean {
-		const isMaskBlocking =
-			state.isGameActive && state.isMemoryMode && state.isCopyAreaHidden;
+		const isMaskBlocking = state.isGameActive && state.isMemoryMode && state.isCopyAreaHidden;
 
 		if (!state.isGameActive || isMaskBlocking) return false;
 
@@ -314,29 +292,16 @@ class GameController {
 	}
 
 	private processCompleteRound(): void {
-		const score = ScoringEngine.calculateScore(
-			state.targetPoints,
-			state.userClicks,
-			state.isMirrorMode,
-			state.isAbsoluteMode,
-		);
+		const score = ScoringEngine.calculateScore(state.targetPoints, state.userClicks, state.isMirrorMode, state.isAbsoluteMode);
 
-		state.comparisonShape = calculateComparisonShape(
-			state.userClicks,
-			state.targetPoints,
-			score.bestStartIndex,
-			{
-				layoutMode: state.layoutMode,
-				isMirrorMode: state.isMirrorMode,
-				isAbsoluteMode: state.isAbsoluteMode,
-			},
-		);
+		state.comparisonShape = calculateComparisonShape(state.userClicks, state.targetPoints, score.bestStartIndex, {
+			layoutMode: state.layoutMode,
+			isMirrorMode: state.isMirrorMode,
+			isAbsoluteMode: state.isAbsoluteMode,
+		});
 
 		const converter = this.getConverter();
-		state.normalizedComparisonShape = converter.toNormalizedArray(
-			state.comparisonShape,
-			false,
-		);
+		state.normalizedComparisonShape = converter.toNormalizedArray(state.comparisonShape, false);
 
 		state.results.push({ accuracy: score.distanceScore });
 
@@ -348,8 +313,7 @@ class GameController {
 	}
 
 	private updateStreak(percentage: number): void {
-		state.currentStreak =
-			percentage >= state.passThreshold ? state.currentStreak + 1 : 0;
+		state.currentStreak = percentage >= state.passThreshold ? state.currentStreak + 1 : 0;
 	}
 
 	private getConverter(): CoordinateConverter {

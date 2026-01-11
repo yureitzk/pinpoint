@@ -1,10 +1,5 @@
 class CoordinateSystem {
-	static getZone(
-		layout: LayoutMode,
-		width: number,
-		height: number,
-		isTargetZone: boolean,
-	) {
+	static getZone(layout: LayoutMode, width: number, height: number, isTargetZone: boolean) {
 		const isHorizontal = layout === 'horizontal';
 
 		const isFirstSection = isTargetZone;
@@ -27,13 +22,7 @@ class CoordinateSystem {
 	}
 
 	// Convert Normalized (-0.5 to 0.5) to Pixels
-	static toPixels(
-		normalized: Point,
-		layout: LayoutMode,
-		width: number,
-		height: number,
-		isTargetZone: boolean,
-	): Point {
+	static toPixels(normalized: Point, layout: LayoutMode, width: number, height: number, isTargetZone: boolean): Point {
 		const zone = this.getZone(layout, width, height, isTargetZone);
 		// Multiply by 0.85 to leave a little padding around the edges
 		const scale = zone.size * 0.85;
@@ -45,13 +34,7 @@ class CoordinateSystem {
 	}
 
 	// Convert Pixels to Normalized (-0.5 to 0.5)
-	static toNormalized(
-		pixels: Point,
-		layout: LayoutMode,
-		width: number,
-		height: number,
-		isTargetZone: boolean,
-	): Point {
+	static toNormalized(pixels: Point, layout: LayoutMode, width: number, height: number, isTargetZone: boolean): Point {
 		const zone = this.getZone(layout, width, height, isTargetZone);
 		const scale = zone.size * 0.85;
 

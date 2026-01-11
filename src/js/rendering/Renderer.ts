@@ -13,11 +13,7 @@ class Renderer {
 		this.ctx.clearRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
 	}
 
-	drawLines(
-		points: Point[],
-		color: string,
-		options: { dashed?: boolean; closed?: boolean } = {},
-	): void {
+	drawLines(points: Point[], color: string, options: { dashed?: boolean; closed?: boolean } = {}): void {
 		if (points.length < 2) return;
 
 		this.ctx.save();
@@ -41,13 +37,7 @@ class Renderer {
 		this.ctx.restore();
 	}
 
-	drawPoint(
-		x: number,
-		y: number,
-		color: string,
-		isSmall = false,
-		isReference = false,
-	): void {
+	drawPoint(x: number, y: number, color: string, isSmall = false, isReference = false): void {
 		const fillColor = isReference ? COLORS.TARGET_REFERENCE : color;
 		const radius = isSmall ? 2 : GEOMETRY.POINT_RADIUS;
 
@@ -80,17 +70,12 @@ class Renderer {
 			ctx.lineWidth = lineWidth;
 
 			if (isHorizontal) {
-				for (
-					let yOffset = 0;
-					yOffset < height + amplitude;
-					yOffset += waveSpacing * spacingMult
-				) {
+				for (let yOffset = 0; yOffset < height + amplitude; yOffset += waveSpacing * spacingMult) {
 					ctx.beginPath();
 					for (let x = startX; x <= startX + width; x++) {
 						const dx = x - startX;
 						const wave1 = Math.sin(dx * frequency) * amplitude;
-						const wave2 =
-							Math.sin(dx * frequency * 2 + yOffset * 0.05) * (amplitude / 3);
+						const wave2 = Math.sin(dx * frequency * 2 + yOffset * 0.05) * (amplitude / 3);
 
 						if (x === startX) ctx.moveTo(x, yOffset + wave1 + wave2);
 						else ctx.lineTo(x, yOffset + wave1 + wave2);
@@ -98,17 +83,12 @@ class Renderer {
 					ctx.stroke();
 				}
 			} else {
-				for (
-					let xOffset = 0;
-					xOffset < width + amplitude;
-					xOffset += waveSpacing * spacingMult
-				) {
+				for (let xOffset = 0; xOffset < width + amplitude; xOffset += waveSpacing * spacingMult) {
 					ctx.beginPath();
 					for (let y = startY; y <= startY + height; y++) {
 						const dy = y - startY;
 						const wave1 = Math.sin(dy * frequency) * amplitude;
-						const wave2 =
-							Math.sin(dy * frequency * 2 + xOffset * 0.05) * (amplitude / 3);
+						const wave2 = Math.sin(dy * frequency * 2 + xOffset * 0.05) * (amplitude / 3);
 
 						if (y === startY) ctx.moveTo(xOffset + wave1 + wave2, y);
 						else ctx.lineTo(xOffset + wave1 + wave2, y);

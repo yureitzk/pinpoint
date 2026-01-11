@@ -1,10 +1,7 @@
 import { CANVAS } from '../core/canvas';
 import { centroid, sortByAngle } from '../lib/mathUtils';
 
-type ComparisonOptions = Pick<
-	GameState,
-	'layoutMode' | 'isMirrorMode' | 'isAbsoluteMode'
->;
+type ComparisonOptions = Pick<GameState, 'layoutMode' | 'isMirrorMode' | 'isAbsoluteMode'>;
 
 export function calculateComparisonShape(
 	userClicks: Point[],
@@ -30,43 +27,23 @@ export function calculateComparisonShape(
 			return calculateAbsolutePlacement(target, layoutMode, isMirrorMode);
 		}
 
-		return calculateRelativePlacement(
-			target,
-			targetPoints[0],
-			orderedUserClicks[bestStartIndex],
-			layoutMode,
-			isMirrorMode,
-		);
+		return calculateRelativePlacement(target, targetPoints[0], orderedUserClicks[bestStartIndex], layoutMode, isMirrorMode);
 	});
 }
 
-function calculateAbsolutePlacement(
-	target: Point,
-	layoutMode: LayoutMode,
-	isMirrorMode: boolean,
-): Point {
+function calculateAbsolutePlacement(target: Point, layoutMode: LayoutMode, isMirrorMode: boolean): Point {
 	if (layoutMode === 'horizontal') {
-		const x = isMirrorMode
-			? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.x)
-			: target.x + CANVAS.DIVIDER;
+		const x = isMirrorMode ? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.x) : target.x + CANVAS.DIVIDER;
 
 		return { x, y: target.y };
 	}
 
-	const y = isMirrorMode
-		? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.y)
-		: target.y + CANVAS.DIVIDER;
+	const y = isMirrorMode ? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.y) : target.y + CANVAS.DIVIDER;
 
 	return { x: target.x, y };
 }
 
-function calculateRelativePlacement(
-	target: Point,
-	refTarget: Point,
-	refUser: Point,
-	layoutMode: LayoutMode,
-	isMirrorMode: boolean,
-): Point {
+function calculateRelativePlacement(target: Point, refTarget: Point, refUser: Point, layoutMode: LayoutMode, isMirrorMode: boolean): Point {
 	let dx = target.x - refTarget.x;
 	let dy = target.y - refTarget.y;
 
@@ -87,4 +64,3 @@ function calculateRelativePlacement(
 export function getLayoutMode(): LayoutMode {
 	return window.innerWidth < 768 ? 'vertical' : 'horizontal';
 }
-

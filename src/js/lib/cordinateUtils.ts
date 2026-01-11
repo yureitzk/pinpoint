@@ -12,23 +12,11 @@ export class CoordinateConverter {
 	}
 
 	toPixels(point: Point, isTargetZone: boolean): Point {
-		return CoordinateSystem.toPixels(
-			point,
-			this.layoutMode,
-			this.width,
-			this.height,
-			isTargetZone,
-		);
+		return CoordinateSystem.toPixels(point, this.layoutMode, this.width, this.height, isTargetZone);
 	}
 
 	toNormalized(point: Point, isTargetZone: boolean): Point {
-		return CoordinateSystem.toNormalized(
-			point,
-			this.layoutMode,
-			this.width,
-			this.height,
-			isTargetZone,
-		);
+		return CoordinateSystem.toNormalized(point, this.layoutMode, this.width, this.height, isTargetZone);
 	}
 
 	toPixelsArray(points: Point[], isTargetZone: boolean): Point[] {
@@ -40,13 +28,6 @@ export class CoordinateConverter {
 	}
 }
 
-export function createConverter(
-	layoutMode: LayoutMode,
-	canvas: HTMLCanvasElement,
-): CoordinateConverter {
-	return new CoordinateConverter(
-		layoutMode,
-		canvas.clientWidth,
-		canvas.clientHeight,
-	);
+export function createConverter(layoutMode: LayoutMode, canvas: HTMLCanvasElement): CoordinateConverter {
+	return new CoordinateConverter(layoutMode, canvas.clientWidth, canvas.clientHeight);
 }

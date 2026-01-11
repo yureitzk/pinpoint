@@ -28,10 +28,7 @@ export function getScoreColor(percentage: number): string {
 	);
 }
 
-function getColors(
-	colorObjects: ColorObject[],
-	currentValue: number,
-): string | undefined {
+function getColors(colorObjects: ColorObject[], currentValue: number): string | undefined {
 	const sortedArray = [...colorObjects.sort((a, b) => b.value - a.value)];
 
 	for (let i = 0; i < sortedArray.length; i++) {

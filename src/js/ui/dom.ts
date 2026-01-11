@@ -1,6 +1,5 @@
 function getDOMElements() {
-	const get = <T extends HTMLElement>(selector: string) =>
-		document.querySelector<T>(selector)!;
+	const get = <T extends HTMLElement>(selector: string) => document.querySelector<T>(selector)!;
 
 	const canvas = get<HTMLCanvasElement>('canvas');
 

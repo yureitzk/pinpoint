@@ -1,13 +1,7 @@
 import { state } from '../core/state';
 import { SCORING } from '../lib/constants';
 import { CANVAS } from '../core/canvas';
-import {
-	angle,
-	centroid,
-	distanceSquared,
-	normalizeAngleDifference,
-	sortByAngle,
-} from '../lib/mathUtils';
+import { angle, centroid, distanceSquared, normalizeAngleDifference, sortByAngle } from '../lib/mathUtils';
 
 class ScoringEngine {
 	static calculateScore(
@@ -22,27 +16,12 @@ class ScoringEngine {
 		bestStartIndex: number;
 	} {
 		const orderedUserClicks = this.orderUserPoints(userClicks);
-		const { minError, bestStartIndex } = this.findBestAlignment(
-			targetPoints,
-			orderedUserClicks,
-			isMirrorMode,
-			isAbsoluteMode,
-		);
+		const { minError, bestStartIndex } = this.findBestAlignment(targetPoints, orderedUserClicks, isMirrorMode, isAbsoluteMode);
 
-		const angleError = this.calculateAngleError(
-			targetPoints,
-			orderedUserClicks,
-			bestStartIndex,
-			isMirrorMode,
-		);
+		const angleError = this.calculateAngleError(targetPoints, orderedUserClicks, bestStartIndex, isMirrorMode);
 
-		const averageDistanceError = Math.round(
-			Math.sqrt(minError / targetPoints.length),
-		);
-		const precisionFraction =
-			1 -
-			Math.min(averageDistanceError, SCORING.MAX_ERROR_TO_DISPLAY) /
-				SCORING.MAX_ERROR_TO_DISPLAY;
+		const averageDistanceError = Math.round(Math.sqrt(minError / targetPoints.length));
+		const precisionFraction = 1 - Math.min(averageDistanceError, SCORING.MAX_ERROR_TO_DISPLAY) / SCORING.MAX_ERROR_TO_DISPLAY;
 		const percentage = Math.max(0, Math.round(precisionFraction * 100));
 
 		return {
@@ -76,13 +55,7 @@ class ScoringEngine {
 		const shouldTryAllOffsets = isAbsoluteMode || userPoints.length >= 3;
 
 		if (!shouldTryAllOffsets) {
-			const error = this.calculateAlignmentError(
-				targetPoints,
-				userPoints,
-				0,
-				isMirrorMode,
-				isAbsoluteMode,
-			);
+			const error = this.calculateAlignmentError(targetPoints, userPoints, 0, isMirrorMode, isAbsoluteMode);
 			return { minError: error, bestStartIndex: 0 };
 		}
 
@@ -90,13 +63,7 @@ class ScoringEngine {
 		let bestStartIndex = 0;
 
 		for (let startOffset = 0; startOffset < targetPoints.length; startOffset++) {
-			const error = this.calculateAlignmentError(
-				targetPoints,
-				userPoints,
-				startOffset,
-				isMirrorMode,
-				isAbsoluteMode,
-			);
+			const error = this.calculateAlignmentError(targetPoints, userPoints, startOffset, isMirrorMode, isAbsoluteMode);
 
 			if (error < minError) {
 				minError = error;
@@ -122,15 +89,11 @@ class ScoringEngine {
 
 			if (isAbsoluteMode) {
 				if (state.layoutMode === 'horizontal') {
-					const tx = isMirrorMode
-						? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.x)
-						: target.x + CANVAS.DIVIDER;
+					const tx = isMirrorMode ? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.x) : target.x + CANVAS.DIVIDER;
 
 					errorSquared += distanceSquared({ x: tx, y: target.y }, user);
 				} else {
-					const ty = isMirrorMode
-						? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.y)
-						: target.y + CANVAS.DIVIDER;
+					const ty = isMirrorMode ? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.y) : target.y + CANVAS.DIVIDER;
 
 					errorSquared += distanceSquared({ x: target.x, y: ty }, user);
 				}
@@ -161,12 +124,7 @@ class ScoringEngine {
 		return errorSquared;
 	}
 
-	private static calculateAngleError(
-		targetPoints: Point[],
-		userPoints: Point[],
-		startIndex: number,
-		isMirrorMode: boolean,
-	): number {
+	private static calculateAngleError(targetPoints: Point[], userPoints: Point[], startIndex: number, isMirrorMode: boolean): number {
 		let totalError = 0;
 
 		for (let i = 0; i < targetPoints.length; i++) {
