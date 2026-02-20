@@ -12,8 +12,6 @@ export const TIMING = {
 
 export const THRESHOLD_FALLBACK = 90;
 
-export const MASK_FONT = 'bold 2.4rem Roboto, Inter, system-ui, -apple-system, Segoe UI, sans-serif';
-
 export const PLACEHOLDER_TEXT = {
 	SCORE_SPAN: '--',
 	ANGLE_ERROR_SPAN: '--',
@@ -21,12 +19,13 @@ export const PLACEHOLDER_TEXT = {
 	ATTEMPTS_DISPLAY_MANY: 'Rounds',
 	ATTEMPTS_DISPLAY_ONE: 'Round',
 	AVERAGE_PERCENTAGE: 'n/a',
-	MASK: 'Wait...',
 } as const;
 
 export const COLORS = {
-	MASK: '#18181b',
-	MASK_TEXT: '#9a9aa3',
+	MASK_BG: '#1f1f23',
+	MASK_GRID_BASE: '#3a3a3f',
+	MASK_GRID_GLINT: '#5a5a60',
+	MASK_GRID_LIGHT: '#8a8a8e',
 	TARGET_DEFAULT: '#4fd1c5',
 	TARGET_REFERENCE: '#e6f7f4',
 	USER_LINES_PROGRESS: 'rgba(79, 209, 197, 0.25)',

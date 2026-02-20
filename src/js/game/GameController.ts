@@ -1,5 +1,5 @@
 import { CANVAS } from '../core/canvas';
-import { COLORS, SCORING, PLACEHOLDER_TEXT } from '../lib/constants';
+import { COLORS, SCORING } from '../lib/constants';
 import { state } from '../core/state';
 import Renderer from '../rendering/Renderer';
 import PatternGenerator from './PatternGenerator';
@@ -15,6 +15,7 @@ class GameController {
 	constructor(renderer: Renderer, uiManager: UIManager) {
 		this.renderer = renderer;
 		this.uiManager = uiManager;
+		this.renderer.setDrawUpdate(() => this.draw());
 	}
 
 	public startRound(): void {
@@ -255,6 +256,10 @@ class GameController {
 	private setupMemoryMode(): void {
 		if (!state.isMemoryMode) return;
 
+		this.renderer.initMaskPixels();
+		this.renderer.setMaskAnimation('appear');
+		this.renderer.startLoadingAnimation();
+
 		setTimeout(() => {
 			state.isTargetVisible = false;
 			this.draw();
@@ -262,13 +267,18 @@ class GameController {
 
 		setTimeout(() => {
 			state.isCopyAreaHidden = false;
-			this.draw();
+			this.renderer.setMaskAnimation('disappear');
+
+			setTimeout(() => {
+				this.renderer.stopLoadingAnimation();
+				this.draw();
+			}, 800);
 		}, state.copyAreaMaskMs);
 	}
 
 	private hideCopyArea(): void {
 		if (state.isGameActive && state.isMemoryMode && state.isCopyAreaHidden) {
-			this.renderer.drawMask(PLACEHOLDER_TEXT.MASK);
+			this.renderer.drawMask();
 		}
 	}
 

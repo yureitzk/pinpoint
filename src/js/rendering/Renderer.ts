@@ -1,12 +1,60 @@
 import { CANVAS } from '../core/canvas';
-import { COLORS, GEOMETRY, MASK_FONT } from '../lib/constants';
+import { COLORS, GEOMETRY } from '../lib/constants';
 import { state } from '../core/state';
+import PixelFragment from './GridFragment';
 
 class Renderer {
 	private ctx: CanvasRenderingContext2D;
+	private animationFrameId: number | null = null;
+	private pixels: PixelFragment[] = [];
+	private animationMode: 'appear' | 'disappear' = 'disappear';
+	private onDrawUpdate?: () => void;
 
 	constructor(ctx: CanvasRenderingContext2D) {
 		this.ctx = ctx;
+	}
+
+	setDrawUpdate(callback: () => void) {
+		this.onDrawUpdate = callback;
+	}
+
+	startLoadingAnimation(): void {
+		if (this.animationFrameId !== null) return;
+		const loop = () => {
+			if (this.onDrawUpdate) this.onDrawUpdate();
+			this.animationFrameId = requestAnimationFrame(loop);
+		};
+		this.animationFrameId = requestAnimationFrame(loop);
+	}
+
+	stopLoadingAnimation(): void {
+		if (this.animationFrameId !== null) {
+			cancelAnimationFrame(this.animationFrameId);
+			this.animationFrameId = null;
+		}
+	}
+
+	initMaskPixels(): void {
+		const isHorizontal = state.layoutMode === 'horizontal';
+		const startX = isHorizontal ? CANVAS.DIVIDER : 0;
+		const startY = isHorizontal ? 0 : CANVAS.DIVIDER;
+		const width = isHorizontal ? CANVAS.WIDTH - CANVAS.DIVIDER : CANVAS.WIDTH;
+		const height = isHorizontal ? CANVAS.HEIGHT : CANVAS.HEIGHT - CANVAS.DIVIDER;
+
+		const gap = 6;
+		const speed = 0.035;
+		const colors = [COLORS.MASK_GRID_BASE, COLORS.MASK_GRID_GLINT, COLORS.MASK_GRID_LIGHT];
+
+		this.pixels = [];
+		for (let x = startX; x < startX + width; x += gap) {
+			for (let y = startY; y < startY + height; y += gap) {
+				const centerX = startX + width / 2;
+				const centerY = startY + height / 2;
+				const delay = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+				const color = colors[Math.floor(Math.random() * colors.length)];
+				this.pixels.push(new PixelFragment(this.ctx, x, y, color, speed, delay, width, height));
+			}
+		}
 	}
 
 	clear(): void {
@@ -47,89 +95,24 @@ class Renderer {
 		this.ctx.fill();
 	}
 
-	private drawMaskEffect(): void {
-		const ctx = this.ctx;
-		const isHorizontal = state.layoutMode === 'horizontal';
+	setMaskAnimation(mode: 'appear' | 'disappear'): void {
+		this.animationMode = mode;
+	}
 
-		const startX = isHorizontal ? CANVAS.DIVIDER : 0;
-		const startY = isHorizontal ? 0 : CANVAS.DIVIDER;
+	drawMask(): void {
+		const isHorizontal = state.layoutMode === 'horizontal';
+		const x = isHorizontal ? CANVAS.DIVIDER : 0;
+		const y = isHorizontal ? 0 : CANVAS.DIVIDER;
 		const width = isHorizontal ? CANVAS.WIDTH - CANVAS.DIVIDER : CANVAS.WIDTH;
 		const height = isHorizontal ? CANVAS.HEIGHT : CANVAS.HEIGHT - CANVAS.DIVIDER;
 
-		ctx.save();
-		ctx.beginPath();
-		ctx.rect(startX, startY, width, height);
-		ctx.clip();
+		this.ctx.fillStyle = COLORS.MASK_BG;
+		this.ctx.fillRect(x, y, width, height);
 
-		const waveSpacing = 30;
-		const amplitude = 20;
-		const frequency = 0.02;
-
-		const drawPass = (color: string, lineWidth: number, spacingMult: number) => {
-			ctx.strokeStyle = color;
-			ctx.lineWidth = lineWidth;
-
-			if (isHorizontal) {
-				for (let yOffset = 0; yOffset < height + amplitude; yOffset += waveSpacing * spacingMult) {
-					ctx.beginPath();
-					for (let x = startX; x <= startX + width; x++) {
-						const dx = x - startX;
-						const wave1 = Math.sin(dx * frequency) * amplitude;
-						const wave2 = Math.sin(dx * frequency * 2 + yOffset * 0.05) * (amplitude / 3);
-
-						if (x === startX) ctx.moveTo(x, yOffset + wave1 + wave2);
-						else ctx.lineTo(x, yOffset + wave1 + wave2);
-					}
-					ctx.stroke();
-				}
-			} else {
-				for (let xOffset = 0; xOffset < width + amplitude; xOffset += waveSpacing * spacingMult) {
-					ctx.beginPath();
-					for (let y = startY; y <= startY + height; y++) {
-						const dy = y - startY;
-						const wave1 = Math.sin(dy * frequency) * amplitude;
-						const wave2 = Math.sin(dy * frequency * 2 + xOffset * 0.05) * (amplitude / 3);
-
-						if (y === startY) ctx.moveTo(xOffset + wave1 + wave2, y);
-						else ctx.lineTo(xOffset + wave1 + wave2, y);
-					}
-					ctx.stroke();
-				}
-			}
-		};
-
-		drawPass('rgba(255, 255, 255, 0.04)', 1.5, 1);
-		drawPass('rgba(255, 255, 255, 0.08)', 2, 5);
-
-		ctx.restore();
-	}
-
-	drawMask(text: string): void {
-		this.ctx.fillStyle = COLORS.MASK;
-		if (state.layoutMode === 'horizontal') {
-			this.ctx.fillRect(CANVAS.DIVIDER, 0, CANVAS.DIVIDER, CANVAS.HEIGHT);
-		} else {
-			this.ctx.fillRect(0, CANVAS.DIVIDER, CANVAS.WIDTH, CANVAS.DIVIDER);
+		for (const pixel of this.pixels) {
+			if (this.animationMode === 'appear') pixel.appear();
+			else pixel.disappear();
 		}
-
-		this.drawMaskEffect();
-
-		this.ctx.fillStyle = COLORS.MASK_TEXT;
-		this.ctx.font = MASK_FONT;
-		this.ctx.textAlign = 'center';
-		this.ctx.textBaseline = 'middle';
-		let textX: number;
-		let textY: number;
-
-		if (state.layoutMode === 'horizontal') {
-			textX = CANVAS.DIVIDER + CANVAS.DIVIDER / 2;
-			textY = CANVAS.HEIGHT / 2;
-		} else {
-			textX = CANVAS.WIDTH / 2;
-			textY = CANVAS.DIVIDER + CANVAS.DIVIDER / 2;
-		}
-
-		this.ctx.fillText(text, textX, textY);
 	}
 
 	drawGhostLine(from: Point, to: Point): void {
