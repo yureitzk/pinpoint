@@ -11,6 +11,7 @@ import { CoordinateConverter } from '../lib/cordinateUtils';
 class GameController {
 	private renderer: Renderer;
 	private uiManager: UIManager;
+	private activeTimeouts: number[] = [];
 
 	constructor(renderer: Renderer, uiManager: UIManager) {
 		this.renderer = renderer;
@@ -19,6 +20,7 @@ class GameController {
 	}
 
 	public startRound(): void {
+		this.clearPendingActions();
 		this.syncUI();
 		this.resetRoundState();
 		this.updateUiFromState();
@@ -89,6 +91,7 @@ class GameController {
 		state.normalizedComparisonShape = [];
 		state.isGameActive = false;
 
+		this.clearPendingActions();
 		this.resetUIState();
 		this.refreshUIStats();
 		this.updateUiFromState();
@@ -161,6 +164,12 @@ class GameController {
 			width: isHorizontal ? CANVAS.WIDTH - CANVAS.DIVIDER : CANVAS.WIDTH,
 			height: isHorizontal ? CANVAS.HEIGHT : CANVAS.HEIGHT - CANVAS.DIVIDER,
 		};
+	}
+
+	private clearPendingActions(): void {
+		this.activeTimeouts.forEach((timeout) => clearTimeout(timeout));
+		this.activeTimeouts = [];
+		this.renderer.stopLoadingAnimation();
 	}
 
 	private updateUndoButton(): void {
@@ -315,20 +324,24 @@ class GameController {
 		this.renderer.setMaskAnimation('appear');
 		this.renderer.startLoadingAnimation();
 
-		setTimeout(() => {
+		const t1 = window.setTimeout(() => {
 			state.isTargetVisible = false;
 			this.draw();
 		}, state.targetVisibilityMs);
 
-		setTimeout(() => {
+		const t2 = window.setTimeout(() => {
 			state.isCopyAreaHidden = false;
 			this.renderer.setMaskAnimation('disappear');
 
-			setTimeout(() => {
+			const t3 = window.setTimeout(() => {
 				this.renderer.stopLoadingAnimation();
 				this.draw();
 			}, 800);
+
+			this.activeTimeouts.push(t3);
 		}, state.copyAreaMaskMs);
+
+		this.activeTimeouts.push(t1, t2);
 	}
 
 	private hideCopyArea(): void {
