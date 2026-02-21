@@ -51,6 +51,10 @@ class Renderer {
 		}
 	}
 
+	isAnimating(): boolean {
+		return this.animationFrameId !== null;
+	}
+
 	resizeMask(bounds: MaskBounds): void {
 		const gap = 6;
 		const speed = 0.035;

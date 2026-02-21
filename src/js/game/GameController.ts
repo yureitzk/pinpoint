@@ -75,7 +75,9 @@ class GameController {
 	public updateCursor(x: number, y: number): void {
 		state.mousePosition.x = x;
 		state.mousePosition.y = y;
-		if (state.isGameActive) this.draw();
+		if (state.isGameActive && !this.renderer.isAnimating()) {
+			this.draw();
+		}
 	}
 
 	public isGameActive(): boolean {
