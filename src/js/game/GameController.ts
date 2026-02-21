@@ -1,11 +1,11 @@
-import { CANVAS } from '../core/canvas';
+import { CANVAS, setupCanvas } from '../core/canvas';
 import { COLORS, SCORING } from '../lib/constants';
 import { state } from '../core/state';
 import Renderer from '../rendering/Renderer';
 import PatternGenerator from './PatternGenerator';
 import ScoringEngine from './ScoringEngine';
 import UIManager from '../ui/UIManager';
-import { calculateComparisonShape } from '../lib/gameUtils';
+import { calculateComparisonShape, getLayoutMode } from '../lib/gameUtils';
 import { CoordinateConverter } from '../lib/cordinateUtils';
 
 class GameController {
@@ -70,6 +70,16 @@ class GameController {
 		this.draw();
 	}
 
+	public updateCursor(x: number, y: number): void {
+		state.mousePosition.x = x;
+		state.mousePosition.y = y;
+		if (state.isGameActive) this.draw();
+	}
+
+	public isGameActive(): boolean {
+		return state.isGameActive;
+	}
+
 	public resetStats(): void {
 		state.currentStreak = 0;
 		state.results = [];
@@ -111,6 +121,46 @@ class GameController {
 	public toggleGhostLine(isEnabled: boolean): void {
 		state.isGhostLineEnabled = isEnabled;
 		this.handleUIFeatureToggle();
+	}
+
+	public handleWindowResize(): void {
+		state.layoutMode = getLayoutMode();
+		setupCanvas();
+
+		const converter = this.getConverter();
+
+		if (state.normalizedTargetPoints && state.normalizedTargetPoints.length > 0) {
+			state.targetPoints = converter.toPixelsArray(state.normalizedTargetPoints, true);
+		}
+
+		if (state.normalizedUserClicks && state.normalizedUserClicks.length > 0) {
+			state.userClicks = converter.toPixelsArray(state.normalizedUserClicks, false);
+		}
+
+		if (state.normalizedComparisonShape && state.normalizedComparisonShape.length > 0) {
+			state.comparisonShape = converter.toPixelsArray(state.normalizedComparisonShape, false);
+		}
+
+		if (state.mousePosition) {
+			const normMouse = converter.toNormalized(state.mousePosition, false);
+			state.mousePosition = converter.toPixels(normMouse, false);
+		}
+
+		if (state.isGameActive && state.isMemoryMode && state.isCopyAreaHidden) {
+			this.renderer.initMaskPixels(this.getMaskBounds());
+		}
+
+		this.draw();
+	}
+
+	private getMaskBounds(): MaskBounds {
+		const isHorizontal = state.layoutMode === 'horizontal';
+		return {
+			x: isHorizontal ? CANVAS.DIVIDER : 0,
+			y: isHorizontal ? 0 : CANVAS.DIVIDER,
+			width: isHorizontal ? CANVAS.WIDTH - CANVAS.DIVIDER : CANVAS.WIDTH,
+			height: isHorizontal ? CANVAS.HEIGHT : CANVAS.HEIGHT - CANVAS.DIVIDER,
+		};
 	}
 
 	private updateUndoButton(): void {
@@ -250,13 +300,18 @@ class GameController {
 	}
 
 	private generateNewPattern(): void {
-		state.targetPoints = PatternGenerator.generate(state.pointsType);
+		const points = PatternGenerator.generate(state.pointsType, state.layoutMode);
+		state.targetPoints = points;
+
+		const converter = this.getConverter();
+		state.normalizedTargetPoints = converter.toNormalizedArray(points, true);
 	}
 
 	private setupMemoryMode(): void {
 		if (!state.isMemoryMode) return;
 
-		this.renderer.initMaskPixels();
+		const bounds = this.getMaskBounds();
+		this.renderer.initMaskPixels(bounds);
 		this.renderer.setMaskAnimation('appear');
 		this.renderer.startLoadingAnimation();
 
@@ -278,7 +333,8 @@ class GameController {
 
 	private hideCopyArea(): void {
 		if (state.isGameActive && state.isMemoryMode && state.isCopyAreaHidden) {
-			this.renderer.drawMask();
+			const bounds = this.getMaskBounds();
+			this.renderer.drawMask(bounds);
 		}
 	}
 
@@ -302,7 +358,13 @@ class GameController {
 	}
 
 	private processCompleteRound(): void {
-		const score = ScoringEngine.calculateScore(state.targetPoints, state.userClicks, state.isMirrorMode, state.isAbsoluteMode);
+		const score = ScoringEngine.calculateScore(
+			state.targetPoints,
+			state.userClicks,
+			state.isMirrorMode,
+			state.isAbsoluteMode,
+			state.layoutMode,
+		);
 
 		state.comparisonShape = calculateComparisonShape(state.userClicks, state.targetPoints, score.bestStartIndex, {
 			layoutMode: state.layoutMode,

@@ -1,6 +1,5 @@
 import { CANVAS } from '../core/canvas';
 import { COLORS, GEOMETRY } from '../lib/constants';
-import { state } from '../core/state';
 import PixelFragment from './GridFragment';
 
 class Renderer {
@@ -34,25 +33,20 @@ class Renderer {
 		}
 	}
 
-	initMaskPixels(): void {
-		const isHorizontal = state.layoutMode === 'horizontal';
-		const startX = isHorizontal ? CANVAS.DIVIDER : 0;
-		const startY = isHorizontal ? 0 : CANVAS.DIVIDER;
-		const width = isHorizontal ? CANVAS.WIDTH - CANVAS.DIVIDER : CANVAS.WIDTH;
-		const height = isHorizontal ? CANVAS.HEIGHT : CANVAS.HEIGHT - CANVAS.DIVIDER;
-
+	initMaskPixels(bounds: MaskBounds): void {
 		const gap = 6;
 		const speed = 0.035;
 		const colors = [COLORS.MASK_GRID_BASE, COLORS.MASK_GRID_GLINT, COLORS.MASK_GRID_LIGHT];
 
 		this.pixels = [];
-		for (let x = startX; x < startX + width; x += gap) {
-			for (let y = startY; y < startY + height; y += gap) {
-				const centerX = startX + width / 2;
-				const centerY = startY + height / 2;
+		for (let x = bounds.x; x < bounds.x + bounds.width; x += gap) {
+			for (let y = bounds.y; y < bounds.y + bounds.height; y += gap) {
+				const centerX = bounds.x + bounds.width / 2;
+				const centerY = bounds.y + bounds.height / 2;
 				const delay = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
 				const color = colors[Math.floor(Math.random() * colors.length)];
-				this.pixels.push(new PixelFragment(this.ctx, x, y, color, speed, delay, width, height));
+
+				this.pixels.push(new PixelFragment(this.ctx, x, y, color, speed, delay, bounds.width, bounds.height));
 			}
 		}
 	}
@@ -99,15 +93,9 @@ class Renderer {
 		this.animationMode = mode;
 	}
 
-	drawMask(): void {
-		const isHorizontal = state.layoutMode === 'horizontal';
-		const x = isHorizontal ? CANVAS.DIVIDER : 0;
-		const y = isHorizontal ? 0 : CANVAS.DIVIDER;
-		const width = isHorizontal ? CANVAS.WIDTH - CANVAS.DIVIDER : CANVAS.WIDTH;
-		const height = isHorizontal ? CANVAS.HEIGHT : CANVAS.HEIGHT - CANVAS.DIVIDER;
-
+	drawMask(bounds: MaskBounds): void {
 		this.ctx.fillStyle = COLORS.MASK_BG;
-		this.ctx.fillRect(x, y, width, height);
+		this.ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
 		for (const pixel of this.pixels) {
 			if (this.animationMode === 'appear') pixel.appear();

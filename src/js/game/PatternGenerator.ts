@@ -1,21 +1,12 @@
 import { GEOMETRY } from '../lib/constants';
 import { CANVAS } from '../core/canvas';
-import { state } from '../core/state';
 import { distanceSquared } from '../lib/mathUtils';
-import { CoordinateConverter } from '../lib/cordinateUtils';
 
 class PatternGenerator {
-	static generate(numPoints: number): Point[] {
+	static generate(numPoints: number, layoutMode: LayoutMode): Point[] {
 		const radius = Math.random() * (GEOMETRY.MAX_RADIUS - GEOMETRY.MIN_RADIUS) + GEOMETRY.MIN_RADIUS;
-		let centerX, centerY;
-
-		if (state.layoutMode === 'horizontal') {
-			centerX = CANVAS.WIDTH / 4;
-			centerY = CANVAS.HEIGHT / 2;
-		} else {
-			centerX = CANVAS.WIDTH / 2;
-			centerY = CANVAS.HEIGHT / 4;
-		}
+		const centerX = layoutMode === 'horizontal' ? CANVAS.WIDTH / 4 : CANVAS.WIDTH / 2;
+		const centerY = layoutMode === 'horizontal' ? CANVAS.HEIGHT / 2 : CANVAS.HEIGHT / 4;
 
 		const startAngle = Math.random() * 2 * Math.PI;
 		const angleIncrement = numPoints === 2 ? Math.PI : (2 * Math.PI) / numPoints;
@@ -33,11 +24,7 @@ class PatternGenerator {
 			};
 		});
 
-		const sortedPoints = this.reorderByClosestToOrigin(points);
-
-		const converter = new CoordinateConverter(state.layoutMode, CANVAS.WIDTH, CANVAS.HEIGHT);
-		state.normalizedTargetPoints = converter.toNormalizedArray(sortedPoints, true);
-		return sortedPoints;
+		return this.reorderByClosestToOrigin(points);
 	}
 
 	private static reorderByClosestToOrigin(points: Point[]): Point[] {

@@ -1,4 +1,3 @@
-import { state } from '../core/state';
 import { SCORING } from '../lib/constants';
 import { CANVAS } from '../core/canvas';
 import { angle, centroid, distanceSquared, normalizeAngleDifference, sortByAngle } from '../lib/mathUtils';
@@ -9,16 +8,17 @@ class ScoringEngine {
 		userClicks: Point[],
 		isMirrorMode: boolean,
 		isAbsoluteMode: boolean,
+		layoutMode: LayoutMode,
 	): {
 		distanceScore: number;
 		angleErrors: string;
 		percentage: number;
 		bestStartIndex: number;
 	} {
-		const orderedUserClicks = this.orderUserPoints(userClicks);
-		const { minError, bestStartIndex } = this.findBestAlignment(targetPoints, orderedUserClicks, isMirrorMode, isAbsoluteMode);
+		const orderedUserClicks = this.orderUserPoints(userClicks, isMirrorMode);
+		const { minError, bestStartIndex } = this.findBestAlignment(targetPoints, orderedUserClicks, isMirrorMode, isAbsoluteMode, layoutMode);
 
-		const angleError = this.calculateAngleError(targetPoints, orderedUserClicks, bestStartIndex, isMirrorMode);
+		const angleError = this.calculateAngleError(targetPoints, orderedUserClicks, bestStartIndex, isMirrorMode, layoutMode);
 
 		const averageDistanceError = Math.round(Math.sqrt(minError / targetPoints.length));
 		const precisionFraction = 1 - Math.min(averageDistanceError, SCORING.MAX_ERROR_TO_DISPLAY) / SCORING.MAX_ERROR_TO_DISPLAY;
@@ -32,16 +32,13 @@ class ScoringEngine {
 		};
 	}
 
-	private static orderUserPoints(points: Point[]): Point[] {
+	private static orderUserPoints(points: Point[], isMirrorMode: boolean): Point[] {
 		if (points.length < 3) return points;
+
 		const center = centroid(points);
 		const sorted = sortByAngle(points, center);
 
-		if (state.isMirrorMode) {
-			return sorted.reverse();
-		}
-
-		return sorted;
+		return isMirrorMode ? [...sorted].reverse() : sorted;
 	}
 
 	private static findBestAlignment(
@@ -49,13 +46,14 @@ class ScoringEngine {
 		userPoints: Point[],
 		isMirrorMode: boolean,
 		isAbsoluteMode: boolean,
+		layoutMode: 'horizontal' | 'vertical',
 	): { minError: number; bestStartIndex: number } {
 		// For relative mode with 3+ points, also try all alignments
 		// because sorting changes the order
 		const shouldTryAllOffsets = isAbsoluteMode || userPoints.length >= 3;
 
 		if (!shouldTryAllOffsets) {
-			const error = this.calculateAlignmentError(targetPoints, userPoints, 0, isMirrorMode, isAbsoluteMode);
+			const error = this.calculateAlignmentError(targetPoints, userPoints, 0, isMirrorMode, isAbsoluteMode, layoutMode);
 			return { minError: error, bestStartIndex: 0 };
 		}
 
@@ -63,8 +61,7 @@ class ScoringEngine {
 		let bestStartIndex = 0;
 
 		for (let startOffset = 0; startOffset < targetPoints.length; startOffset++) {
-			const error = this.calculateAlignmentError(targetPoints, userPoints, startOffset, isMirrorMode, isAbsoluteMode);
-
+			const error = this.calculateAlignmentError(targetPoints, userPoints, startOffset, isMirrorMode, isAbsoluteMode, layoutMode);
 			if (error < minError) {
 				minError = error;
 				bestStartIndex = startOffset;
@@ -80,6 +77,7 @@ class ScoringEngine {
 		startOffset: number,
 		isMirrorMode: boolean,
 		isAbsoluteMode: boolean,
+		layoutMode: LayoutMode,
 	): number {
 		let errorSquared = 0;
 
@@ -88,15 +86,13 @@ class ScoringEngine {
 			const user = userPoints[(startOffset + i) % userPoints.length];
 
 			if (isAbsoluteMode) {
-				if (state.layoutMode === 'horizontal') {
-					const tx = isMirrorMode ? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.x) : target.x + CANVAS.DIVIDER;
+				const tx =
+					layoutMode === 'horizontal' ? (isMirrorMode ? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.x) : target.x + CANVAS.DIVIDER) : target.x;
 
-					errorSquared += distanceSquared({ x: tx, y: target.y }, user);
-				} else {
-					const ty = isMirrorMode ? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.y) : target.y + CANVAS.DIVIDER;
+				const ty =
+					layoutMode === 'vertical' ? (isMirrorMode ? CANVAS.DIVIDER + (CANVAS.DIVIDER - target.y) : target.y + CANVAS.DIVIDER) : target.y;
 
-					errorSquared += distanceSquared({ x: target.x, y: ty }, user);
-				}
+				errorSquared += distanceSquared({ x: tx, y: ty }, user);
 			} else {
 				const refTarget = targetPoints[0];
 				const refUser = userPoints[startOffset];
@@ -105,26 +101,24 @@ class ScoringEngine {
 				let dy = target.y - refTarget.y;
 
 				if (isMirrorMode) {
-					if (state.layoutMode === 'horizontal') {
-						dx = -dx;
-					} else {
-						dy = -dy;
-					}
+					if (layoutMode === 'horizontal') dx = -dx;
+					else dy = -dy;
 				}
 
-				const expected = {
-					x: refUser.x + dx,
-					y: refUser.y + dy,
-				};
-
-				errorSquared += distanceSquared(expected, user);
+				errorSquared += distanceSquared({ x: refUser.x + dx, y: refUser.y + dy }, user);
 			}
 		}
 
 		return errorSquared;
 	}
 
-	private static calculateAngleError(targetPoints: Point[], userPoints: Point[], startIndex: number, isMirrorMode: boolean): number {
+	private static calculateAngleError(
+		targetPoints: Point[],
+		userPoints: Point[],
+		startIndex: number,
+		isMirrorMode: boolean,
+		layoutMode: 'horizontal' | 'vertical',
+	): number {
 		let totalError = 0;
 
 		for (let i = 0; i < targetPoints.length; i++) {
@@ -137,15 +131,10 @@ class ScoringEngine {
 			const userAngle = angle(u1, u2);
 
 			if (isMirrorMode) {
-				if (state.layoutMode === 'horizontal') {
-					targetAngle = Math.atan2(t2.y - t1.y, -(t2.x - t1.x));
-				} else {
-					targetAngle = Math.atan2(-(t2.y - t1.y), t2.x - t1.x);
-				}
+				targetAngle = layoutMode === 'horizontal' ? Math.atan2(t2.y - t1.y, -(t2.x - t1.x)) : Math.atan2(-(t2.y - t1.y), t2.x - t1.x);
 			}
 
-			const diff = normalizeAngleDifference(Math.abs(targetAngle - userAngle));
-			totalError += (diff * 180) / Math.PI;
+			totalError += (normalizeAngleDifference(Math.abs(targetAngle - userAngle)) * 180) / Math.PI;
 		}
 
 		return totalError / targetPoints.length;

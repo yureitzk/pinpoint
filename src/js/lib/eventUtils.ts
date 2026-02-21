@@ -9,9 +9,8 @@ export function getCanvasCoordinates(canvas: HTMLCanvasElement, e: PointerEvent)
 	};
 }
 
-export function updateMousePosition(state: GameState, coords: { x: number; y: number }): void {
-	state.mousePosition.x = coords.x;
-	state.mousePosition.y = coords.y;
+export function updateMousePosition(coords: { x: number; y: number }): { x: number; y: number } {
+	return { x: coords.x, y: coords.y };
 }
 
 export function trackDraggingMovement(coords: { x: number; y: number }, pointerState: PointerState): void {
@@ -29,11 +28,11 @@ export function isInClickCooldown(lastClickTime: number, clickCooldownMs: number
 	return now - lastClickTime < clickCooldownMs;
 }
 
-export function startDragging(coords: { x: number; y: number }, state: GameState, pointerState: PointerState): void {
+export function startDragging(coords: { x: number; y: number }, pointerState: PointerState): { x: number; y: number } {
 	pointerState.lastPointerDownPosition = coords;
-	state.mousePosition = { ...coords };
 	pointerState.isDragging = true;
 	pointerState.hasMovedWhileDragging = false;
+	return { ...coords };
 }
 
 export function calculateDistance(point1: { x: number; y: number }, point2: { x: number; y: number }): number {

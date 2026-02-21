@@ -1,14 +1,9 @@
-import { dom } from './dom';
-import { setupCanvas } from '../core/canvas';
-import { state } from '../core/state';
-import { getLayoutMode } from '../lib/gameUtils';
-import type GameController from '../game/GameController';
 import hotkeys from 'hotkeys-js';
-import { createConverter } from '../lib/cordinateUtils';
+import { dom } from './dom';
+import type GameController from '../game/GameController';
 import { CLICK_COOLDOWN_MS, DRAG_THRESHOLD } from '../lib/constants';
 import {
 	getCanvasCoordinates,
-	updateMousePosition,
 	trackDraggingMovement,
 	isInClickCooldown,
 	startDragging,
@@ -16,30 +11,6 @@ import {
 	cleanupDragging,
 	releasePointerCaptureSafely,
 } from '../lib/eventUtils';
-
-function handleResize(game: GameController): void {
-	state.layoutMode = getLayoutMode();
-	setupCanvas();
-
-	const converter = createConverter(state.layoutMode, dom.canvas);
-
-	if (state.normalizedTargetPoints?.length > 0) {
-		state.targetPoints = converter.toPixelsArray(state.normalizedTargetPoints, true);
-	}
-
-	if (state.normalizedUserClicks?.length > 0) {
-		state.userClicks = converter.toPixelsArray(state.normalizedUserClicks, false);
-	}
-
-	if (state.normalizedComparisonShape?.length > 0) {
-		state.comparisonShape = converter.toPixelsArray(state.normalizedComparisonShape, false);
-	}
-
-	const normMouse = converter.toNormalized(state.mousePosition, false);
-	state.mousePosition = converter.toPixels(normMouse, false);
-
-	game.draw();
-}
 
 export function setupEventListeners(game: GameController): void {
 	const pointerState: PointerState = {
@@ -56,26 +27,26 @@ export function setupEventListeners(game: GameController): void {
 }
 
 function setupPointerEvents(game: GameController, pointerState: PointerState): void {
-	dom.canvas.addEventListener('pointermove', createPointerMoveHandler(game, pointerState));
-	dom.canvas.addEventListener('pointerdown', createPointerDownHandler(game, pointerState));
-	dom.canvas.addEventListener('pointerup', createPointerUpHandler(game, pointerState));
-	dom.canvas.addEventListener('pointercancel', createPointerCancelHandler(pointerState));
+	dom.canvas.addEventListener('pointermove', setupPointerMoveHandler(game, pointerState));
+	dom.canvas.addEventListener('pointerdown', setupPointerDownHandler(game, pointerState));
+	dom.canvas.addEventListener('pointerup', setupPointerUpHandler(game, pointerState));
+	dom.canvas.addEventListener('pointercancel', setupPointerCancelHandler(pointerState));
 }
 
-function createPointerMoveHandler(game: GameController, pointerState: PointerState): (e: PointerEvent) => void {
+function setupPointerMoveHandler(game: GameController, pointerState: PointerState): (e: PointerEvent) => void {
 	return (e) => {
 		const coords = getCanvasCoordinates(dom.canvas, e);
-		updateMousePosition(state, coords);
+		game.updateCursor(coords.x, coords.y);
 
 		if (pointerState.isDragging) {
 			trackDraggingMovement(coords, pointerState);
 		}
 
-		if (state.isGameActive) game.draw();
+		if (game.isGameActive()) game.draw();
 	};
 }
 
-function createPointerDownHandler(game: GameController, pointerState: PointerState): (e: PointerEvent) => void {
+function setupPointerDownHandler(game: GameController, pointerState: PointerState): (e: PointerEvent) => void {
 	return (e) => {
 		if (isInClickCooldown(pointerState.lastClickTime, CLICK_COOLDOWN_MS)) {
 			e.preventDefault();
@@ -83,14 +54,14 @@ function createPointerDownHandler(game: GameController, pointerState: PointerSta
 		}
 
 		const coords = getCanvasCoordinates(dom.canvas, e);
-		startDragging(coords, state, pointerState);
+		startDragging(coords, pointerState);
 		dom.canvas.setPointerCapture(e.pointerId);
 
-		if (state.isGameActive) game.draw();
+		game.updateCursor(coords.x, coords.y);
 	};
 }
 
-function createPointerUpHandler(game: GameController, pointerState: PointerState): (e: PointerEvent) => void {
+function setupPointerUpHandler(game: GameController, pointerState: PointerState): (e: PointerEvent) => void {
 	return (e) => {
 		if (!pointerState.isDragging) return;
 
@@ -100,7 +71,7 @@ function createPointerUpHandler(game: GameController, pointerState: PointerState
 	};
 }
 
-function createPointerCancelHandler(pointerState: PointerState): (e: PointerEvent) => void {
+function setupPointerCancelHandler(pointerState: PointerState): (e: PointerEvent) => void {
 	return (e) => {
 		pointerState.isDragging = false;
 		pointerState.hasMovedWhileDragging = false;
@@ -158,7 +129,7 @@ function setupWindowEvents(game: GameController): void {
 	window.addEventListener('resize', () => {
 		cancelAnimationFrame(resizeTimeout);
 		resizeTimeout = requestAnimationFrame(() => {
-			handleResize(game);
+			game.handleWindowResize();
 		});
 	});
 }

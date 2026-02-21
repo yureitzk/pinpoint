@@ -46,3 +46,10 @@ interface PointerState {
 	hasMovedWhileDragging: boolean;
 	lastClickTime: number;
 }
+
+interface MaskBounds {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+}
