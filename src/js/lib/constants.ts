@@ -1,7 +1,7 @@
 export const GEOMETRY = {
 	POINT_RADIUS: 3,
-	MIN_RADIUS: 50,
-	MAX_RADIUS: 120,
+	MIN_RADIUS_PX: 70,
+	MAX_RADIUS: 0.35,
 	MAX_DISTORTION: 40,
 } as const;
 

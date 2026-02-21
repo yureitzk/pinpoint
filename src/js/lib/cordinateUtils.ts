@@ -26,6 +26,11 @@ export class CoordinateConverter {
 	toNormalizedArray(points: Point[], isTargetZone: boolean): Point[] {
 		return points.map((p) => this.toNormalized(p, isTargetZone));
 	}
+
+	getZoneSize(isTargetZone: boolean): number {
+		const zone = CoordinateSystem.getZone(this.layoutMode, this.width, this.height, isTargetZone);
+		return zone.size;
+	}
 }
 
 export function createConverter(layoutMode: LayoutMode, canvas: HTMLCanvasElement): CoordinateConverter {

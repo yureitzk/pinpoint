@@ -2,34 +2,22 @@ import { GEOMETRY } from '../lib/constants';
 import { distanceSquared } from '../lib/mathUtils';
 
 class PatternGenerator {
-	static generate(numPoints: number, layoutMode: LayoutMode, width: number, height: number): Point[] {
-		const isHorizontal = layoutMode === 'horizontal';
-		const sectionWidth = isHorizontal ? width / 2 : width;
-		const sectionHeight = isHorizontal ? height : height / 2;
-		const zoneSize = Math.min(sectionWidth, sectionHeight);
+	static generate(numPoints: number, zoneSize: number): Point[] {
+		const maxRadius = GEOMETRY.MAX_RADIUS;
+		const minRadiusPx = GEOMETRY.MIN_RADIUS_PX;
+		const maxDistortion = 0.08;
 
-		const minRelRadius = 0.15;
-		const maxRelRadius = 0.35;
-
-		const radiusScale = Math.random() * (maxRelRadius - minRelRadius) + minRelRadius;
-		const radius = zoneSize * radiusScale;
-
-		const centerX = isHorizontal ? width / 4 : width / 2;
-		const centerY = isHorizontal ? height / 2 : height / 4;
+		const minRadius = Math.min(maxRadius, minRadiusPx / zoneSize);
+		const radius = Math.random() * (maxRadius - minRadius) + minRadius;
 
 		const startAngle = Math.random() * 2 * Math.PI;
 		const angleIncrement = numPoints === 2 ? Math.PI : (2 * Math.PI) / numPoints;
 
 		const points = Array.from({ length: numPoints }, (_, i) => {
 			const angle = startAngle + i * angleIncrement;
-			const idealX = centerX + radius * Math.cos(angle);
-			const idealY = centerY + radius * Math.sin(angle);
-			const distortionX = (Math.random() - 0.5) * GEOMETRY.MAX_DISTORTION;
-			const distortionY = (Math.random() - 0.5) * GEOMETRY.MAX_DISTORTION;
-
 			return {
-				x: Math.round(idealX + distortionX),
-				y: Math.round(idealY + distortionY),
+				x: radius * Math.cos(angle) + (Math.random() - 0.5) * maxDistortion,
+				y: radius * Math.sin(angle) + (Math.random() - 0.5) * maxDistortion,
 			};
 		});
 
