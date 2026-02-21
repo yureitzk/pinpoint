@@ -1,6 +1,6 @@
 import { CANVAS } from '../core/canvas';
 import { COLORS, GEOMETRY } from '../lib/constants';
-import PixelFragment from './GridFragment';
+import PixelFragment from './PixelFragment';
 
 class Renderer {
 	private ctx: CanvasRenderingContext2D;
@@ -48,6 +48,38 @@ class Renderer {
 
 				this.pixels.push(new PixelFragment(this.ctx, x, y, color, speed, delay, bounds.width, bounds.height));
 			}
+		}
+	}
+
+	resizeMask(bounds: MaskBounds): void {
+		const gap = 6;
+		const speed = 0.035;
+		const colors = [COLORS.MASK_GRID_BASE, COLORS.MASK_GRID_GLINT, COLORS.MASK_GRID_LIGHT];
+
+		const shouldSpawnActive = this.pixels.length > 0 && this.pixels[0].isShimmer;
+
+		let index = 0;
+
+		for (let x = bounds.x; x < bounds.x + bounds.width; x += gap) {
+			for (let y = bounds.y; y < bounds.y + bounds.height; y += gap) {
+				if (this.pixels[index]) {
+					this.pixels[index].setPosition(x, y);
+				} else {
+					const centerX = bounds.x + bounds.width / 2;
+					const centerY = bounds.y + bounds.height / 2;
+					const delay = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+					const color = colors[Math.floor(Math.random() * colors.length)];
+
+					const newPixel = new PixelFragment(this.ctx, x, y, color, speed, delay, bounds.width, bounds.height, shouldSpawnActive ? 1 : 0);
+
+					this.pixels.push(newPixel);
+				}
+				index++;
+			}
+		}
+
+		if (index < this.pixels.length) {
+			this.pixels.splice(index);
 		}
 	}
 

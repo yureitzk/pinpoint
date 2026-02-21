@@ -41,8 +41,6 @@ function setupPointerMoveHandler(game: GameController, pointerState: PointerStat
 		if (pointerState.isDragging) {
 			trackDraggingMovement(coords, pointerState);
 		}
-
-		if (game.isGameActive()) game.draw();
 	};
 }
 

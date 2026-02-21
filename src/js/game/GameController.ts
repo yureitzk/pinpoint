@@ -147,7 +147,7 @@ class GameController {
 		}
 
 		if (state.isGameActive && state.isMemoryMode && state.isCopyAreaHidden) {
-			this.renderer.initMaskPixels(this.getMaskBounds());
+			this.renderer.resizeMask(this.getMaskBounds());
 		}
 
 		this.draw();
