@@ -1,3 +1,6 @@
+// Implementation based on pixel-canvas logic
+// Reference: https://github.com/hexagoncircle/pixel-canvas
+
 class PixelFragment {
 	public size: number = 0;
 	public isIdle: boolean = true;
