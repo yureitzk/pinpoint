@@ -1,12 +1,21 @@
 import { GEOMETRY } from '../lib/constants';
-import { CANVAS } from '../core/canvas';
 import { distanceSquared } from '../lib/mathUtils';
 
 class PatternGenerator {
-	static generate(numPoints: number, layoutMode: LayoutMode): Point[] {
-		const radius = Math.random() * (GEOMETRY.MAX_RADIUS - GEOMETRY.MIN_RADIUS) + GEOMETRY.MIN_RADIUS;
-		const centerX = layoutMode === 'horizontal' ? CANVAS.WIDTH / 4 : CANVAS.WIDTH / 2;
-		const centerY = layoutMode === 'horizontal' ? CANVAS.HEIGHT / 2 : CANVAS.HEIGHT / 4;
+	static generate(numPoints: number, layoutMode: LayoutMode, width: number, height: number): Point[] {
+		const isHorizontal = layoutMode === 'horizontal';
+		const sectionWidth = isHorizontal ? width / 2 : width;
+		const sectionHeight = isHorizontal ? height : height / 2;
+		const zoneSize = Math.min(sectionWidth, sectionHeight);
+
+		const minRelRadius = 0.15;
+		const maxRelRadius = 0.35;
+
+		const radiusScale = Math.random() * (maxRelRadius - minRelRadius) + minRelRadius;
+		const radius = zoneSize * radiusScale;
+
+		const centerX = isHorizontal ? width / 4 : width / 2;
+		const centerY = isHorizontal ? height / 2 : height / 4;
 
 		const startAngle = Math.random() * 2 * Math.PI;
 		const angleIncrement = numPoints === 2 ? Math.PI : (2 * Math.PI) / numPoints;

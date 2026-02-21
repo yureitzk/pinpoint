@@ -311,7 +311,7 @@ class GameController {
 	}
 
 	private generateNewPattern(): void {
-		const points = PatternGenerator.generate(state.pointsType, state.layoutMode);
+		const points = PatternGenerator.generate(state.pointsType, state.layoutMode, CANVAS.WIDTH, CANVAS.HEIGHT);
 		state.targetPoints = points;
 
 		const converter = this.getConverter();
